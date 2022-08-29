@@ -1,0 +1,132 @@
+#----------------- FINAL VERSION ----------------------------------
+
+#libraries that I used 
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(scales)
+
+#--------------------- COUNTRY CHART ------------------------------
+
+Country <- c("Australia", "Canada", "Germany", "Japan", "Philippines", "Sweden", "United States")
+Counts <- c(3,7,1,1,1,1,8)
+
+df1 <- data.frame(Country, Counts) # <- This also creates a long form data frame 
+
+df1 <- df1 %>%
+  arrange(desc(Country)) %>%
+  mutate(prop = Counts / sum(df1$Counts)) %>%
+  mutate(ypos = cumsum(prop)-0.5*prop) %>%
+  mutate(label=prop*1)
+df1[5] = sapply(df1[5], function(x) scales::percent(x, accuracy = 1))
+
+ggplot(df1, aes(x = "", y = prop, fill = Country)) +
+  geom_bar(width = 1, stat = "identity", color="white", alpha=0.8) +
+  coord_polar("y", start = 0) +
+  theme_void() + 
+  geom_text(aes(x= 1.75, y = ypos, label = label), size=4, color = "black") +
+  scale_fill_brewer(palette="Spectral")+
+  labs(x="", y="", title = "Country Affiliations", fill = "Countries")
+
+#-------------------------------- Organizational Affiliation ---------------------------
+
+orgdf <- data.frame(org = c("Academic/Research", "Public", "Private", "Philanthropic", "NGO"),
+                    value = c(0.68, 0.23, 0, 0.05, 0.23))
+
+#This is how to get the chart with the percentage to reach 100% at the top - This is exactly what I want!!
+ggplot(data=orgdf, aes(x=org, y=value, fill = org)) + 
+  geom_bar(stat="identity") +
+  scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  labs(title = "Organization Affiliations", x="Organization", y="Percentage of Responses", fill = "Legend") +
+  theme_classic()+
+  scale_fill_brewer(palette = "Spectral")
+
+#-------------------------------- Role Affiliations -------------------------------------
+
+df3 <- data.frame(role = forcats::fct_inorder(c("Scientist", "Resource Manager", "Educator", "Gov. Decision Maker", "Other")),
+                  value = c(0.95,0.14,0.05,0,0.18))
+
+ggplot(data=df3, aes(x=role, y=value, fill = role)) + 
+  geom_bar(stat="identity") +
+  scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  labs(title = "Role Affiliations", x="Roles", y="Percentage of Responses", fill = "Legend") +
+  theme_classic()+
+  scale_fill_brewer(palette = "Spectral")
+
+#------------------------------- Bioregion Affiliations ---------------------------------
+
+biodf <- data.frame(bio = forcats::fct_inorder(c("TNA", "TA", "Med", "TNP", "TIP", "TS", "Arctic")),
+                    value = c(0.50, 0.41, 0.05, 0.27, 0.32, 0.09,0))
+
+ggplot(data=biodf, aes(x=bio, y=value, fill = bio)) + 
+  geom_bar(stat="identity") +
+  scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  labs(title = "Bioregional Locations of Seagrass Work", x="Seagrass Bioregions", y="Percentage of Responses", fill = "Legend") +
+  theme_classic()+
+  scale_fill_brewer(palette = "Spectral")
+
+#------------------------------ Social Sciences Methodologies Chart -------------------------
+
+ssdf <- data.frame(org = forcats::fct_inorder(c("TEK", "LEK", "CS", "PM", "Other")),
+                   value = c(0.29,0.36, 0.50,	0.64,	0.29))
+
+ggplot(data=ssdf, aes(x=org, y=value, fill = org)) + 
+  geom_bar(stat="identity") +
+  scale_y_continuous(labels = percent_format(), limits=c(0,1)) +
+  labs(title = "Social Science Methodologies Used", x="Social Science Methodologies", y="Percentage of Responses", fill = "Legend") +
+  theme_classic()+
+  scale_fill_brewer(palette = "Spectral")
+
+#------------------------------ Remote Sensing Alluvial Chart ---------------------------------
+
+library(readxl)
+SeagrassAug19_TABLES <- read_excel("Survey Data/SeagrassAug19 - TABLES.xls", 
+                                   sheet = "Remote_Alluvial")
+View(SeagrassAug19_TABLES)
+
+TEST2 <- data.frame(SeagrassAug19_TABLES) 
+
+TEST2$Method <-factor(TEST2$Method, levels=c("Satellite Imagery", "Multispectral Imagery", "Aerial Survey",
+                                             "Aerial Photography", "AUV", "Boat-based Remote Sensing"))
+
+TEST2$Data_Application <- factor(TEST2$Data_Application, levels=c("Monitoring", "Research", "Conservation",
+                                                                  "Restoration", "Education", "Reporting", "Assessment"))
+
+ggplot(data = TEST2,
+       aes(axis1 = Sector, axis2 = Method, axis3 = Data_Application,
+           y = Frequency)) +
+  scale_x_discrete(limits = c("Organization", "Ex situ", "Data Application"), expand = c(.2, .05)) +
+  xlab("Variables") +
+  geom_alluvium(aes(fill = Response)) +
+  geom_stratum() +
+  theme_minimal() +
+  ggtitle("Remote Sensing Methods Usage and Their Data Applications") +
+  ggfittext::geom_fit_text(stat = "stratum", aes(label = after_stat(stratum)), width = 1/4, min.size = 3) 
+
+#-------------------------- In-field Alluvial Chart ------------------------------------
+library(readxl)
+SeagrassAug19_TABLES <- read_excel("Survey Data/SeagrassAug19 - TABLES.xls", 
+                                   sheet = "In-field_Alluvial")
+View(SeagrassAug19_TABLES)
+
+TEST3 <- data.frame(SeagrassAug19_TABLES) 
+
+TEST3$Method <-factor(TEST3$Method, levels=c("Boat-based Direct Measurements", "Scuba/snorkel Visual Surveys", "Underwater Video",
+                                             "Underwater Photography", "Permanent Transects", "Seasonal Transects"))
+
+TEST3$Data_Application <- factor(TEST3$Data_Application, levels=c("Monitoring", "Research", "Conservation",
+                                                                  "Restoration", "Education", "Reporting", "Assessment"))
+
+ggplot(data = TEST3,
+       aes(axis1 = Sector, axis2 = Method, axis3 = Data_Application,
+           y = Frequency)) +
+  scale_x_discrete(limits = c("Organization", "In situ", "Data Application"), expand = c(.2, .05)) +
+  xlab("Variables") +
+  geom_alluvium(aes(fill = Response)) +
+  geom_stratum() +
+  theme_minimal() +
+  ggtitle("In-Field Methods Usage and Their Data Applications") +
+  ggfittext::geom_fit_text(stat = "stratum", aes(label = after_stat(stratum)), width = 1/4, min.size = 3) 
+
+
