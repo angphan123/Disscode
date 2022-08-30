@@ -1,6 +1,6 @@
 #----------------- FINAL VERSION ----------------------------------
 
-#libraries that I used 
+#libraries that I use 
 
 library(ggplot2)
 library(tidyr)
@@ -78,22 +78,22 @@ ggplot(data=ssdf, aes(x=org, y=value, fill = org)) +
   theme_classic()+
   scale_fill_brewer(palette = "Spectral")
 
-#------------------------------ Remote Sensing Alluvial Chart ---------------------------------
+#---------------- Remote Sensing Alluvial Graph ----------------------------- 
 
 library(readxl)
 SeagrassAug19_TABLES <- read_excel("Survey Data/SeagrassAug19 - TABLES.xls", 
-                                   sheet = "Remote_Alluvial")
+                                   sheet = "Remote_Alluvial (2)")
 View(SeagrassAug19_TABLES)
 
-TEST2 <- data.frame(SeagrassAug19_TABLES) 
+rse1 <- data.frame(SeagrassAug19_TABLES) 
 
-TEST2$Method <-factor(TEST2$Method, levels=c("Satellite Imagery", "Multispectral Imagery", "Aerial Survey",
-                                             "Aerial Photography", "AUV", "Boat-based Remote Sensing"))
+rse1$Method <-factor(rse1$Method, levels=c("S. Imagery", "M. Imagery", "A. Survey",
+                                             "A. Photography", "AUV", "Boat-based RS"))
 
-TEST2$Data_Application <- factor(TEST2$Data_Application, levels=c("Monitoring", "Research", "Conservation",
+rse1$Data_Application <- factor(rse1$Data_Application, levels=c("Monitoring", "Research", "Conservation",
                                                                   "Restoration", "Education", "Reporting", "Assessment"))
 
-ggplot(data = TEST2,
+ggplot(data = rse1,
        aes(axis1 = Sector, axis2 = Method, axis3 = Data_Application,
            y = Frequency)) +
   scale_x_discrete(limits = c("Organization", "Ex situ", "Data Application"), expand = c(.2, .05)) +
@@ -104,21 +104,21 @@ ggplot(data = TEST2,
   ggtitle("Remote Sensing Methods Usage and Their Data Applications") +
   ggfittext::geom_fit_text(stat = "stratum", aes(label = after_stat(stratum)), width = 1/4, min.size = 3) 
 
-#-------------------------- In-field Alluvial Chart ------------------------------------
+#-------------------In-field Alluvial Graph -----------
+
 library(readxl)
 SeagrassAug19_TABLES <- read_excel("Survey Data/SeagrassAug19 - TABLES.xls", 
-                                   sheet = "In-field_Alluvial")
+                                   sheet = "in-field alluvial2")
 View(SeagrassAug19_TABLES)
 
-TEST3 <- data.frame(SeagrassAug19_TABLES) 
+ff2 <- data.frame(SeagrassAug19_TABLES)
 
-TEST3$Method <-factor(TEST3$Method, levels=c("Boat-based Direct Measurements", "Scuba/snorkel Visual Surveys", "Underwater Video",
-                                             "Underwater Photography", "Permanent Transects", "Seasonal Transects"))
+ff2$Method <- factor(ff2$Method, levels = c("Boat-based DM", "Scuba/snorkel VS", "U. Video", 
+                                          "U. Photography", "P. Transects", "S. Transects"))
 
-TEST3$Data_Application <- factor(TEST3$Data_Application, levels=c("Monitoring", "Research", "Conservation",
-                                                                  "Restoration", "Education", "Reporting", "Assessment"))
-
-ggplot(data = TEST3,
+ff2$Data_Application <- factor(ff2$Data_Application, levels = c("Monitoring", "Research", "Conservation",
+                                                              "Restoration", "Education", "Reporting", "Assessment"))
+ggplot(data = ff2,
        aes(axis1 = Sector, axis2 = Method, axis3 = Data_Application,
            y = Frequency)) +
   scale_x_discrete(limits = c("Organization", "In situ", "Data Application"), expand = c(.2, .05)) +
@@ -128,5 +128,3 @@ ggplot(data = TEST3,
   theme_minimal() +
   ggtitle("In-Field Methods Usage and Their Data Applications") +
   ggfittext::geom_fit_text(stat = "stratum", aes(label = after_stat(stratum)), width = 1/4, min.size = 3) 
-
-
